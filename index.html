@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chef a domicilio & Meal Prep</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: colonna singola da telefono. Scelta servizio, dettagli, anteprima messaggio, invio su WhatsApp. */
+:root{
+  --bg:#f3f6f1;--fg:#16221a;--card:#ffffff;--mut:#5a695e;--bd:#d8e0d4;
+  --accent:#1d6b47;--accent-fg:#ffffff;--soft:#e4efe6;--gold:#b07a0a;
+  --font-display:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1511;--fg:#eaf1ea;--card:#17211a;--mut:#9fb0a3;--bd:#2a382e;
+  --accent:#4fbf86;--accent-fg:#06180f;--soft:#1d2e23;--gold:#e6b04a;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1511;--fg:#eaf1ea;--card:#17211a;--mut:#9fb0a3;--bd:#2a382e;
+  --accent:#4fbf86;--accent-fg:#06180f;--soft:#1d2e23;--gold:#e6b04a;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,8vw,2.8rem);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.25rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+.mut{color:var(--mut)}
+.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+header{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:16px}
+.step{display:flex;flex-direction:column;gap:12px}
+
+/* servizi */
+.svc{display:grid;gap:10px}
+.svc input{position:absolute;opacity:0;pointer-events:none}
+.svc label{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px;border:1.5px solid var(--bd);border-radius:12px;cursor:pointer;background:var(--bg)}
+.svc label .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.svc label small{color:var(--mut);font-size:.85rem}
+.svc .pr{font-weight:600;color:var(--accent);white-space:nowrap;text-align:right;font-size:.95rem;font-variant-numeric:tabular-nums}
+.svc input:checked+label{border-color:var(--accent);background:var(--soft)}
+.svc input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+
+/* campi */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>span{font-size:.85rem;font-weight:600}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--fg);font:inherit;min-width:0}
+textarea{resize:vertical;min-height:72px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stepper{display:grid;grid-template-columns:48px 1fr 48px;gap:8px}
+.stepper button{border:1px solid var(--bd);background:var(--bg);color:var(--fg);border-radius:10px;font-size:1.3rem;cursor:pointer;min-height:48px}
+.stepper input{text-align:center}
+@media (max-width:420px){.grid2{grid-template-columns:1fr}}
+
+/* anteprima */
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 14px;border-radius:10px;background:var(--soft)}
+.total b{font-family:var(--font-display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.total span{color:var(--mut);font-size:.9rem}
+.preview{white-space:pre-wrap;word-break:break-word;font-size:.92rem;background:var(--bg);border:1px dashed var(--bd);border-radius:10px;padding:12px;color:var(--fg)}
+.missing{font-size:.85rem;color:var(--gold);min-height:1.2em}
+.btn{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;background:var(--accent);color:var(--accent-fg);border:0;border-radius:12px;padding:16px;font:600 1rem var(--font-body);cursor:pointer;text-decoration:none;text-align:center}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--bd);padding:12px}
+.num{font-variant-numeric:tabular-nums;user-select:all}
+footer{font-size:.85rem;color:var(--mut);display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion:no-preference){.svc label,.btn{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <span class="eyebrow">Chef a domicilio · Meal prep</span>
+    <h1>Cucina da ristorante, a casa tua.</h1>
+    <p class="mut">Cene private, pasti pronti per la settimana ed eventi. Porto ingredienti e attrezzatura e lascio la cucina pulita.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-serv">
+    <div class="step">
+      <h2 id="h-serv">1. Scegli il servizio</h2>
+      <div class="svc" id="svc"></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-det">
+    <h2 id="h-det">2. Completa i dettagli</h2>
+    <label class="field"><span>Il tuo nome</span><input id="n" type="text" autocomplete="name" placeholder="Es. Giulia"></label>
+    <div class="field">
+      <span>Numero di persone</span>
+      <div class="stepper">
+        <button type="button" id="minus" aria-label="Una persona in meno">−</button>
+        <input id="q" type="number" min="1" max="60" value="2" inputmode="numeric" aria-label="Numero di persone">
+        <button type="button" id="plus" aria-label="Una persona in più">+</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <label class="field"><span id="dl">Data desiderata</span><input id="d" type="date"></label>
+      <label class="field"><span>Orario</span>
+        <select id="h">
+          <option>Da concordare</option><option>12:30</option><option>13:00</option><option>19:30</option><option>20:00</option><option>20:30</option><option>21:00</option>
+        </select>
+      </label>
+    </div>
+    <label class="field"><span>Zona o città</span><input id="z" type="text" autocomplete="address-level2" placeholder="Es. Bari, Mola di Bari"></label>
+    <label class="field"><span>Allergie o richieste (facoltativo)</span><textarea id="note" placeholder="Es. senza glutine, un ospite vegetariano"></textarea></label>
+  </section>
+
+  <section class="panel" aria-labelledby="h-inv">
+    <h2 id="h-inv">3. Invia la richiesta</h2>
+    <div class="total"><span id="tl">Totale stimato</span><b id="tv">€120</b></div>
+    <p class="mut" style="font-size:.85rem">Questo è il messaggio che mi arriverà su WhatsApp. Potrai modificarlo prima di inviarlo.</p>
+    <div class="preview" id="pv" aria-live="polite"></div>
+    <div class="missing" id="miss"></div>
+    <a class="btn" id="go" href="#" target="_blank" rel="noopener">Invia richiesta su WhatsApp</a>
+    <button type="button" class="btn ghost" id="copy">Copia il messaggio</button>
+  </section>
+
+  <footer>
+    <p>Rispondo entro poche ore con menù e preventivo. Il totale è una stima, il prezzo finale dipende dal menù scelto.</p>
+    <p>Preferisci scrivere direttamente? WhatsApp: <span class="num" id="telshow"></span></p>
+  </footer>
+</main>
+
+<script>
+// MODIFICA QUI: numero WhatsApp (prefisso senza +) e servizi
+var TEL = "393249211467";
+var SERVICES = [
+  {id:"cena",  name:"Cena privata",          desc:"Menù su misura per 2–8 persone: compleanni, anniversari, cene tra amici.", price:60, label:"€60 a persona",              dlabel:"Data della cena"},
+  {id:"prep",  name:"Meal prep settimanale", desc:"5 giorni di pranzi o cene in contenitori, pronti da scaldare.",              price:65, label:"€65 a persona a settimana", dlabel:"Data di inizio"},
+  {id:"event", name:"Evento o festa",        desc:"Buffet e finger food per feste, lauree, eventi aziendali.",                   price:0,  label:"Preventivo gratuito",       dlabel:"Data dell'evento"}
+];
+var cur = SERVICES[0];
+var $ = function(i){ return document.getElementById(i); };
+
+function buildServices(){
+  var box = $("svc");
+  SERVICES.forEach(function(s, i){
+    var inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "svc"; inp.id = "s-" + s.id; inp.value = s.id;
+    if(i === 0) inp.checked = true;
+    var lab = document.createElement("label");
+    lab.htmlFor = inp.id;
+    var t = document.createElement("span"); t.className = "t";
+    var h = document.createElement("h3"); h.textContent = s.name;
+    var sm = document.createElement("small"); sm.textContent = s.desc;
+    t.appendChild(h); t.appendChild(sm);
+    var pr = document.createElement("span"); pr.className = "pr"; pr.textContent = s.label;
+    lab.appendChild(t); lab.appendChild(pr);
+    box.appendChild(inp); box.appendChild(lab);
+    inp.addEventListener("change", function(){ cur = s; upd(); });
+  });
+}
+
+function fmtDate(v){
+  if(!v) return "";
+  var p = v.split("-");
+  if(p.length !== 3) return v;
+  var dt = new Date(+p[0], +p[1]-1, +p[2]);
+  try { return dt.toLocaleDateString("it-IT", {weekday:"long", day:"numeric", month:"long", year:"numeric"}); }
+  catch(e){ return v; }
+}
+
+function persons(){
+  var n = parseInt($("q").value, 10);
+  if(!n || n < 1) n = 1;
+  if(n > 60) n = 60;
+  return n;
+}
+
+function build(){
+  var name = $("n").value.trim();
+  var zone = $("z").value.trim();
+  var note = $("note").value.trim();
+  var date = fmtDate($("d").value);
+  var n = persons();
+  var lines = [];
+  lines.push("Ciao! Sono " + (name || "un cliente") + ".");
+  lines.push("Vorrei richiedere: " + cur.name);
+  lines.push("Persone: " + n);
+  lines.push(cur.dlabel + ": " + (date || "da definire"));
+  lines.push("Orario: " + $("h").value);
+  lines.push("Zona: " + (zone || "da definire"));
+  if(note) lines.push("Note: " + note);
+  if(cur.price) lines.push("Totale stimato: €" + (cur.price * n));
+  lines.push("Sei disponibile?");
+  return lines.join("\n");
+}
+
+function upd(){
+  var n = persons();
+  $("dl").textContent = cur.dlabel;
+  if(cur.price){
+    $("tl").textContent = n + " × €" + cur.price + (cur.id === "prep" ? " a settimana" : "");
+    $("tv").textContent = "€" + (cur.price * n);
+  } else {
+    $("tl").textContent = "Totale stimato";
+    $("tv").textContent = "Su preventivo";
+  }
+  var msg = build();
+  $("pv").textContent = msg;
+  $("go").href = "https://wa.me/" + TEL + "?text=" + encodeURIComponent(msg);
+  var miss = [];
+  if(!$("n").value.trim()) miss.push("nome");
+  if(!$("d").value) miss.push("data");
+  if(!$("z").value.trim()) miss.push("zona");
+  $("miss").textContent = miss.length ? "Mancano ancora: " + miss.join(", ") + "." : "";
+}
+
+buildServices();
+$("telshow").textContent = "+" + TEL.slice(0,2) + " " + TEL.slice(2);
+try {
+  var t = new Date();
+  var mm = ("0" + (t.getMonth()+1)).slice(-2), dd = ("0" + t.getDate()).slice(-2);
+  $("d").min = t.getFullYear() + "-" + mm + "-" + dd;
+} catch(e){}
+["n","q","d","h","z","note"].forEach(function(id){
+  $(id).addEventListener("input", upd);
+  $(id).addEventListener("change", upd);
+});
+$("minus").addEventListener("click", function(){ $("q").value = Math.max(1, persons() - 1); upd(); });
+$("plus").addEventListener("click", function(){ $("q").value = Math.min(60, persons() + 1); upd(); });
+$("copy").addEventListener("click", function(){
+  var b = $("copy"), msg = build();
+  var done = function(){ b.textContent = "Messaggio copiato"; setTimeout(function(){ b.textContent = "Copia il messaggio"; }, 2000); };
+  try {
+    navigator.clipboard.writeText(msg).then(done, function(){ selectPreview(); });
+  } catch(e){ selectPreview(); }
+});
+function selectPreview(){
+  var r = document.createRange(); r.selectNodeContents($("pv"));
+  var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  $("copy").textContent = "Selezionato: copia a mano";
+}
+upd();
+</script>
+
+</body>
+</html>
